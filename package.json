@@ -1,0 +1,23 @@
+{
+  "name": "MisterAlexa",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MisterSpex/MisterAlexa.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "alexa-sdk": "^1.0.8",
+    "@google/maps": "^0.4.2"
+  },
+  "bugs": {
+    "url": "https://github.com/MisterSpex/MisterAlexa/issues"
+  },
+  "homepage": "https://github.com/MisterSpex/MisterAlexa"
+}
