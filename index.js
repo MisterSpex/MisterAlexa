@@ -2,15 +2,13 @@
 
 const Alexa = require('alexa-sdk');
 const AlexaDeviceAddressClient = require('./lib/AlexaDeviceAddressClient');
+const MSxStoreFinder = require('./lib/MSxStoreFinder');
 const Messages = require('./lib/Messages');
-const GoogleMaps = require('@google/maps');
-
-const Stores = ['10179', '12163', '46047', '28195'];
 
 const APP_ID = "amzn1.ask.skill.ac4dda67-94cd-4676-a49f-290e22135397"
 const ALL_ADDRESS_PERMISSION = "read::alexa:device:all:address:country_and_postal_code";
 const PERMISSIONS = [ALL_ADDRESS_PERMISSION];
-const GOOGLE_MAPS_KEY = "AIzaSyDCzfbiOe9c-lkvEv1tZZPdBXdPm6e2CU0";
+
 
 module.exports.processor = function(event, context, callback){
     var alexa = Alexa.handler(event, context, callback);
@@ -25,27 +23,9 @@ const requestDeviceLocation = function(apiEndpoint, deviceId, consentToken) {
     return deviceAddressRequest;
 };
 
-const searchNearestStore = function(deviceLocation) {
-
-  var googleMapsClient = GoogleMaps.createClient({
-    key: GOOGLE_MAPS_KEY
-  });
-
-  var retrieveDistance = function(destination) {
-    return googleMapsClient.distanceMatrix({
-      origins: [deviceLocation + ', DE'],
-      destinations: [destination + ', DE'],
-      language: 'en',
-      units: 'metric',
-      region: 'EU'
-    }).asPromise();
-  };
-
-  var actions = Stores.map(retrieveDistance);
-  //var distanceResults = Promise.all(actions);
-
-
-    //  console.log(response.json.rows[0].elements[0].distance.value);
+const findClosestStore = function(postalCode, callback) {
+    const storeFinder = new MSxStoreFinder(postalCode);
+    storeFinder.getClosestStore(callback);
 }
 
 var handlers = {
@@ -64,8 +44,9 @@ var handlers = {
               case 200:
                 const address = addressResponse.address;
                 console.info(address['postalCode']);
-                this.emit(":tell", address['postalCode']);
-                searchNearestStore("15366");
+                findClosestStore(address['postalCode'], function() {
+                  this.emit(":tell", address['result']);
+                })
                 return;
               default:
                 console.info("Response code: " + addressResponse.statusCode);
@@ -82,4 +63,7 @@ var handlers = {
   },
 }
 
-//https://maps.googleapis.com/maps/api/distancematrix/json?units=metric&origins=Hoppegarten,DE&destinations=Berlin,DE&key=AIzaSyDCzfbiOe9c-lkvEv1tZZPdBXdPm6e2CU0
+/* Test function
+findClosestStore(15366, function(result) {
+  console.log(result);
+})*/
